@@ -41,7 +41,7 @@ func loadPage(title string) (*Page, error) {
 func landingHandler(w http.ResponseWriter, r *http.Request){
 
 	var dataFile = "Chess.txt"
-	var htmlTemplate = "index.html" 
+	var htmlTemplate = "Index.html" 
 
 	data := filepath.Join(dataPath, dataFile)
 	p, err := loadPage(data)
@@ -68,7 +68,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request, argument string){
 	default:
 
 		dataFile = "Error.txt"
-		htmlTemplate = "error.html" 
+		htmlTemplate = "Error.html" 
 
 	}
 

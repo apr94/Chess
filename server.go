@@ -7,6 +7,10 @@ import (
 "net/http"
 "regexp"
 "path/filepath"
+"database/sql"
+_ "github.com/go-sql-driver/mysql"
+"log"
+"fmt"
 )
 
 
@@ -14,6 +18,8 @@ const (
 	tmplPath = "./templates"
 	dataPath = "./data"
 )
+
+var db *sql.DB
 
 type Page struct {
 
@@ -50,12 +56,12 @@ func landingHandler(w http.ResponseWriter, r *http.Request){
 
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request, argument string){
+func viewHandler(w http.ResponseWriter, r *http.Request, arg string){
 
 	var dataFile string
 	var htmlTemplate string
 
-	switch argument{
+	switch arg{
 
 	case "new":
 
@@ -65,7 +71,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request, argument string){
 	default:
 
 		dataFile = "Error.txt"
-		htmlTemplate = "Error.html" 
+		htmlTemplate = "Error.html"  
 
 	}
 
@@ -80,6 +86,33 @@ func viewHandler(w http.ResponseWriter, r *http.Request, argument string){
 
 }
 
+func gameHandler(w http.ResponseWriter, r * http.Request, arg string){
+
+
+	switch arg{
+
+	case "":
+
+		stmt, err := db.Prepare("select game_id, game_name from Games where game_id = 1")
+		if err != nil {
+			log.Fatal(err)
+		}
+		var name string
+		err = stmt.QueryRow(1).Scan(&name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(name)
+
+
+	default:
+
+	}
+
+
+
+}
+
 
 
 func renderTemplate(w http.ResponseWriter, p *Page,  path string) {
@@ -90,7 +123,7 @@ func renderTemplate(w http.ResponseWriter, p *Page,  path string) {
 	}
 }
 
-var validPath = regexp.MustCompile("^/(view)/([a-zA-Z0-9]+)$")
+var validPath = regexp.MustCompile("^/(view|game)/([a-zA-Z0-9]*)$")
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +138,15 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 
 func main() {
 	http.HandleFunc("/", landingHandler)
+	http.HandleFunc("/game/", makeHandler(gameHandler))
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":8080", nil)
+
+	db, err := sql.Open("mysql",
+		"root:password@tcp(127.0.0.1:3306)/ChessDatabase")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 }

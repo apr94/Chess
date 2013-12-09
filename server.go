@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -93,7 +92,7 @@ func gameHandler(w http.ResponseWriter, r * http.Request, arg string){
 
 	case "":
 
-		stmt, err := db.Prepare("select game_id, game_name from Games where game_id = 1")
+		stmt, err := db.Prepare("select game_name from Games where game_id = 1")
 		if err != nil {
 			log.Fatal(err)
 		}

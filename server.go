@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -121,6 +120,7 @@ func gameHandler(w http.ResponseWriter, r * http.Request, arg string){
 
 	case "":
 
+<<<<<<< HEAD
 		gamename := r.FormValue("GameName");
 		temppassword := r.FormValue("Password");
 		salt := randString(20)
@@ -137,6 +137,9 @@ func gameHandler(w http.ResponseWriter, r * http.Request, arg string){
 		*/
 
 		stmt, err := db.Prepare("INSERT INTO Games(game_name, hash_value, salt) VALUES(?, ?, ?)")
+=======
+		stmt, err := db.Prepare("select game_name from Games where game_id = 1")
+>>>>>>> 927098a9600f0a461a406d074c88eaf0cd64af38
 		if err != nil {
 			log.Fatal(err)
 		}

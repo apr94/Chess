@@ -30,11 +30,14 @@
 	display: inline
 	cursor: pointer;
 
+
+
 }
 
 .StartGameButton p{
 	cursor: pointer;
-	display: inline 
+	display: inline;
+	
 }
 
 body{

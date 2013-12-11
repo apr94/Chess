@@ -19,7 +19,7 @@
 				<legend>New Game</legend>
 				<p>
 					<label> Name for the Game (optional): </label>
-					<input type = "text" id = "GameName"/>
+					<input type = "text" id = "GameName" name = "GameName"/>
 
 					<br>
 					<br>
@@ -48,13 +48,13 @@
 						<fieldset>
 							<legend>Time Controls: </legend> <br> 
 							<label> Minutes: </label>
-							<select id = "MinutesList">
+							<select id = "MinutesList" name = "MinutesList">
 							</select>
 							<label> Seconds: </label>
-							<select id = "SecondsList">
+							<select id = "SecondsList" name = "SecondsList">
 							</select>
 							<label> Increment: </label>
-							<select id = "IncrementList">
+							<select id = "IncrementList" name = "IncrementList">
 							</select>
 							<label> seconds </label>
 						</fieldset>
@@ -77,9 +77,14 @@
 					<label for = "White">White</label>  <br><br>
 
 					<label> Opponent's Email Address: </label>
-					<input type = "text" id = "OppEmail"/> <br> <br>
+					<input type = "text" id = "OppEmail" name = "OppEmail"/> <br> <br>
 
-					<span class="StartGameButton"><p>Start Game</p></span>
+					<label> Game Password: </label>
+					<input type = "text" id = "Password" name = "Password"/> <br> <br>
+
+					
+					<center><span class="StartGameButton"><p>Start Game</p></span></center>
+					
 				</p>       
 
 

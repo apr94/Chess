@@ -11,6 +11,10 @@ import (
 _ "github.com/go-sql-driver/mysql"
 "log"
 "fmt"
+"crypto/rand"
+"crypto/sha1"
+"strconv"
+"io"
 )
 
 
@@ -27,9 +31,35 @@ type Page struct {
 	Body  []byte
 }
 
+
+
+type Game struct{
+
+	GameName string
+	GameID int
+	HashValue string
+	Salt string
+	/*
+	Timing string
+	Minutes int
+	Seconds int
+	Increment int
+	*/
+}
+
 func (p *Page) save() error {
 	filename := p.Title + ".txt"
 	return ioutil.WriteFile(filename, p.Body, 0600)
+}
+
+func randString(n int) string {
+	const alphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	var bytes = make([]byte, n)
+	rand.Read(bytes)
+	for i, b := range bytes {
+		bytes[i] = alphanum[b % byte(len(alphanum))]
+	}
+	return string(bytes)
 }
 
 func loadPage(title string) (*Page, error) {
@@ -69,12 +99,10 @@ func viewHandler(w http.ResponseWriter, r *http.Request, arg string){
 		htmlTemplate = "NewGame.html"  
 
 	default:
-
+		
 		dataFile = "Error.txt"
 		htmlTemplate = "Error.html"  
-
 	}
-
 
 	data := filepath.Join(dataPath, dataFile)
 	p, err := loadPage(data)
@@ -93,26 +121,52 @@ func gameHandler(w http.ResponseWriter, r * http.Request, arg string){
 
 	case "":
 
-		stmt, err := db.Prepare("select game_id, game_name from Games where game_id = 1")
+		gamename := r.FormValue("GameName");
+		temppassword := r.FormValue("Password");
+		salt := randString(20)
+
+		h := sha1.New()
+		io.WriteString(h, temppassword + salt)
+		hashvalue := h.Sum(nil)
+
+		/*
+		timing := r.FormValue("Timing");
+		minutes := r.FormValue("MinutesList");
+		seconds := r.FormValue("SecondsList");
+		increment := r.FormValue("IncrementList");
+		*/
+
+		stmt, err := db.Prepare("INSERT INTO Games(game_name, hash_value, salt) VALUES(?, ?, ?)")
 		if err != nil {
 			log.Fatal(err)
 		}
-		var name string
-		err = stmt.QueryRow(1).Scan(&name)
+		res, err := stmt.Exec(gamename, hashvalue, salt)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(name)
+		lastId, err := res.LastInsertId()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		val := strconv.FormatInt(lastId, 10)
+
+		http.Redirect(w, r, "/game/"+val, http.StatusFound)
 
 
 	default:
 
+		var GameName string
+		id, err := strconv.Atoi(arg)
+
+		err = db.QueryRow("select game_name from Games where game_id = ?", id).Scan(&GameName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(GameName)
+
 	}
-
-
-
 }
-
 
 
 func renderTemplate(w http.ResponseWriter, p *Page,  path string) {
@@ -137,16 +191,17 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 }
 
 func main() {
+
+	var err error
+	db, err = sql.Open("mysql",
+		"root:password@tcp(127.0.0.1:3306)/ChessDatabase")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	http.HandleFunc("/", landingHandler)
 	http.HandleFunc("/game/", makeHandler(gameHandler))
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.ListenAndServe(":8080", nil)
-
-	db, err := sql.Open("mysql",
-		"root:password@tcp(127.0.0.1:3306)/ChessDatabase")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
 }

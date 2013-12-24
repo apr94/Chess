@@ -10,10 +10,11 @@ import (
 _ "github.com/go-sql-driver/mysql"
 "log"
 "fmt"
+"strings"
 "crypto/rand"
-"crypto/sha1"
+//"crypto/sha1"
 "strconv"
-"io"
+//"io"
 )
 
 
@@ -113,6 +114,16 @@ func viewHandler(w http.ResponseWriter, r *http.Request, arg string){
 
 }
 
+func getOppColor(r * http.Request) string{
+
+	beginColor := r.FormValue("Pieces")
+	if strings.EqualFold(beginColor, "White") == true{
+		return "Black"
+	}
+	return "White"
+
+}
+
 func gameHandler(w http.ResponseWriter, r * http.Request, arg string){
 
 
@@ -121,27 +132,31 @@ func gameHandler(w http.ResponseWriter, r * http.Request, arg string){
 	case "":
 
 
-		gamename := r.FormValue("GameName");
-		temppassword := r.FormValue("Password");
+		gamename := r.FormValue("GameName")
+		temppassword := r.FormValue("Password")
 		salt := randString(20)
+		oppemail := r.FormValue("OppEmail")
 
-		h := sha1.New()
-		io.WriteString(h, temppassword + salt)
-		hashvalue := h.Sum(nil)
+		//h := sha1.New()
+		//io.WriteString(h, temppassword + salt)
+		//hashbytes := h.Sum(nil)
+		//hashvalue := string(hashbytes[:])
 
-		/*
+		
 		timing := r.FormValue("Timing");
-		minutes := r.FormValue("MinutesList");
-		seconds := r.FormValue("SecondsList");
-		increment := r.FormValue("IncrementList");
-		*/
+		color := getOppColor(r)
+
+		//minutes := r.FormValue("MinutesList");
+		//seconds := r.FormValue("SecondsList");
+		//increment := r.FormValue("IncrementList");
+		
 
 		stmt, err := db.Prepare("INSERT INTO Games(game_name, hash_value, salt) VALUES(?, ?, ?)")
 
 		if err != nil {
 			log.Fatal(err)
 		}
-		res, err := stmt.Exec(gamename, hashvalue, salt)
+		res, err := stmt.Exec(gamename, temppassword, salt)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -151,6 +166,12 @@ func gameHandler(w http.ResponseWriter, r * http.Request, arg string){
 		}
 
 		val := strconv.FormatInt(lastId, 10)
+
+		subject := "Chess Game Invitation at Go Chess Server"
+
+		body := "You have been invited to play a game at the Go Chess Server. \n\nTiming: " + timing + "\n\nPieces: " + color + "\n\nVisit the following link to access the game: http://localhost:8080/game/" + val + ". Use the following password to login: " + temppassword + ".\n\n Have a great game! \n\n  -The Go Chess Server Team" 
+
+		sendMail(oppemail, subject, body)
 
 		http.Redirect(w, r, "/game/"+val, http.StatusFound)
 
@@ -197,7 +218,7 @@ func main() {
 	db, err = sql.Open("mysql",
 		"root:password@tcp(127.0.0.1:3306)/ChessDatabase")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err) 
 	}
 
 	http.HandleFunc("/", landingHandler)

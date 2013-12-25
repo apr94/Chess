@@ -9,6 +9,11 @@ $(document).ready(function() {
 	$('.NewGameButton').click(function() {
 		document.getElementById("NewGameForm").submit();
 	});
+
+$(document).ready(function() {
+	$('.PlayGameButton').click(function() {
+		document.getElementById("PlayGameForm").submit();
+	});
 });
 
 

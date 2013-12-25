@@ -22,7 +22,7 @@
 
               // the basics
 
-              from := mail.Address{"Go Chess Server", "Email@gmail.com"}
+              from := mail.Address{"Go Chess Server", "mail@server.com"}
 
               to := mail.Address{"Player 2", rec}
 
@@ -31,7 +31,7 @@
 
               smtpserver := "smtp.gmail.com:25"
 
-              auth := smtp.PlainAuth("", "Email@gmail.com", "password", "smtp.gmail.com")
+              auth := smtp.PlainAuth("", "mail@server.com", "password", "smtp.mail.com")
 
 
               // setup a map for the headers

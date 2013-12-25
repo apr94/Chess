@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<head>
+	<title>
+		{{.Title}}
+	</title>
+	<link rel = "stylesheet" href = "../static/css/PlayGame.css"/>
+	<link href='http://fonts.googleapis.com/css?family=Ubuntu:500' rel='stylesheet' type='text/css'>
+
+	<script type="text/javascript" src="http://jqueryjs.googlecode.com/files/jquery-1.3.2.js"></script>
+	<script type="text/javascript" src="../static/js/form.js"></script>
+
+</head>
+
+<body>
+	<h1> Chess </h1>
+	<div id = "CentralDiv">
+		<form id = "PlayGameForm" action="/play/{{.Gamenumber}}" method="POST">
+			<fieldset>
+				<legend>Enter Game</legend>
+				<p>
+
+					<label> Enter Game Password: </label>
+					<input type = "text" id = "Password" name = "Password"/> <br> <br>
+
+					
+					<center><span class="PlayGameButton"><p>Play Game</p></span></center>
+					
+				</p>       
+
+
+			</fieldset>  
+		</form>
+
+	</div>
+</body>
+
+</html>

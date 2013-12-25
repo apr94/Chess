@@ -16,9 +16,9 @@
 	<div id = "CentralDiv">
 		<span class="NewGameButton"><p>New Game</p></span>
 		<span class="ResumeGameButton"><p>Resume</p></span>
-		<p>{{printf "%s" .Body}}</p>
 		<form id = "NewGameForm" action="/view/new" method="POST">
 		</form>
+		{{.Body}}
 	</div>
 </body>
 
